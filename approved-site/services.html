@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Services — LearnWeb</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>LearnWeb</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="blogs/blog-tools.html">Blogs</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="refund.html">Refund Policy</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <section class="hero">
+      <h2>Our Tutor Services</h2>
+      <p>Get personalized 1-on-1 tutoring for your learning needs. All sessions conducted via Google Meet.</p>
+    </section>
+
+    <section class="services">
+      <div class="services-grid">
+        <div class="service-tile">
+          <h4>Full Stack Development with MERN Stack</h4>
+          <p>Rs 400/hour</p>
+          <button class="select-service" data-service="Full Stack Development with MERN Stack">Select</button>
+        </div>
+        <div class="service-tile">
+          <h4>Learn Python<br> Beginner to Intermediate</h4>
+          <p>Rs 300/hour</p>
+          <button class="select-service" data-service="Learn Python">Select</button>
+        </div>
+        <div class="service-tile">
+          <h4>Clear Concepts related to Operating Systems</h4>
+          <p>Rs 250/hour</p>
+          <button class="select-service" data-service="Clear Concepts related to Operating Systems">Select</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="service-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Book Your Tutoring Session</h3>
+      <form id="service-booking-form">
+        <input type="hidden" id="selected-service" name="service">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="mobile">Mobile Number</label>
+          <input type="tel" id="mobile" name="mobile" required>
+        </div>
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+      <div id="service-message" style="display: none; margin-top: 15px; color: green; font-weight: bold;"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="blogs/blog-tools.html">Blogs</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="refund.html">Refund Policy</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+    <p>&copy; 2025 LearnWeb — Educational resources for developers.</p>
+  </footer>
+
+  <script>
+    // Modal functionality
+    const modal = document.getElementById('service-modal');
+    const closeBtn = document.querySelector('.close');
+
+    document.querySelectorAll('.select-service').forEach(button => {
+      button.addEventListener('click', function() {
+        const service = this.getAttribute('data-service');
+        document.getElementById('selected-service').value = service;
+        modal.style.display = 'block';
+        document.getElementById('service-message').style.display = 'none';
+      });
+    });
+
+    closeBtn.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+
+    document.getElementById('service-booking-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      document.getElementById('service-message').textContent = 'We will reach out to you soon to discuss the meeting timings.';
+      document.getElementById('service-message').style.display = 'block';
+      this.reset();
+    });
+  </script>
+</body>
+</html>

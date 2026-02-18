@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LearnWeb — Educational Resources for Developers</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>LearnWeb</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="blogs/blog-tools.html">Blogs</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="refund.html">Refund Policy</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <section class="hero">
+      <h2>Welcome to LearnWeb</h2>
+      <p>This website provides access to digital services such as educational resources, project guidance, and personalized technical assistance for learners and developers. Payments collected are for service access and learning support.</p>
+      <p>Explore practical blog posts about modern full-stack web development tools and best practices.</p>
+    </section>
+
+    <section class="blogs">
+      <h3>Recent Blogs</h3>
+      <ul>
+               <li><a href="blogs/blog-deployment.html">Deployment &amp; DevOps Tools</a> — CI/CD and hosting tips for static and dynamic apps.</li>
+        <li><a href="blogs/blog-tools.html">Essential Tools for Full-Stack Web Development</a> — An overview of editors, package managers, and core libraries.</li>
+        <li><a href="blogs/blog-modern-stack.html">Modern Frontend &amp; Backend Stacks</a> — Choices for frameworks and runtime platforms.</li>
+        </ul>
+    </section>
+
+    <section class="about">
+      <h3>About</h3>
+      <p>LearnWeb is run by an independent educator focused on helping developers build practical skills through tutorials, example projects, and guidance. All content is intended for learning and reference purposes.</p>
+    </section>
+
+    <section class="booking">
+      <h3>Book a Slot for Queries</h3>
+      <form class="booking-form" id="booking-form">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="tel" name="mobile" placeholder="Mobile (optional)">
+        <textarea name="query" placeholder="Short query about your doubt" rows="4"></textarea>
+        <button type="submit">Request Callback</button>
+      </form>
+      <div id="message" style="display: none; margin-top: 10px; color: green;"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="blogs/blog-tools.html">Blogs</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="refund.html">Refund Policy</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+    <p>&copy; 2025 LearnWeb — Educational resources for developers.</p>
+  </footer>
+  <script>
+    document.getElementById('booking-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      document.getElementById('message').textContent = 'We will reach out to you soon.';
+      document.getElementById('message').style.display = 'block';
+      this.reset();
+    });
+  </script>
+</body>
+</html>

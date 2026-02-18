@@ -1,0 +1,35 @@
+/* Simple styles for LearnWeb static site */
+body{font-family:Arial,Helvetica,sans-serif;line-height:1.6;margin:0;color:#222;background:#f7f7f8}
+.site-header{background:#2b6cb0;color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.site-header h1{margin:0;font-size:20px}
+.site-header nav a{color:#fff;margin-left:12px;text-decoration:none;font-weight:600}
+.content{max-width:900px;margin:28px auto;padding:0 16px}
+.hero{background:#fff;padding:20px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.blogs, .about, .booking, .services{margin-top:18px;background:#fff;padding:16px;border-radius:6px}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.service-tile{border:1px solid #ddd;padding:16px;border-radius:6px;text-align:center}
+.service-tile h4{margin-top:0}
+.service-tile p{font-weight:bold;color:#2b6cb0}
+.select-course, .select-service{padding:8px 16px;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer}
+.select-course:hover, .select-service:hover{background:#1e4a7a}
+.meet-info{text-align:center;margin-top:10px;font-style:italic;color:#666}
+.booking-form{display:flex;flex-direction:column;gap:10px}
+.booking-form input,.booking-form textarea{padding:8px;border:1px solid #ccc;border-radius:4px}
+.booking-form button,.submit-btn{padding:10px;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer}
+.booking-form button:hover,.submit-btn:hover{background:#1e4a7a}
+.site-footer{padding:16px;text-align:center;color:#666;font-size:14px}
+.site-footer nav{display:flex;justify-content:center;gap:12px;margin-bottom:8px}
+.site-footer nav a{color:#666;text-decoration:none}
+.site-footer nav a:hover{color:#1a73e8}
+a{color:#1a73e8}
+h2,h3{margin-top:0}
+ul{padding-left:18px}
+
+/* Modal styles */
+.modal{display:none;position:fixed;z-index:1;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.4)}
+.modal-content{background-color:#fefefe;margin:15% auto;padding:20px;border:1px solid #888;width:80%;max-width:400px;border-radius:8px;position:relative}
+.close{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer}
+.close:hover,.close:focus{color:#000;text-decoration:none}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;margin-bottom:5px;font-weight:bold}
+.form-group input{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px}
