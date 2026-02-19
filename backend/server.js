@@ -21,6 +21,7 @@ import riderRoutes from "./routes/rider.js";
 import ratingRoutes from "./routes/rating.js";
 import wishlistRoutes from "./routes/wishlist.js";
 import chatbotRoutes from "./routes/chatbot.js";
+import paymentRoutes from "./routes/payment.js";
 
 // Load env vars
 dotenv.config();
@@ -114,6 +115,7 @@ app.use("/api/rider", riderRoutes);
 app.use("/api/rating", ratingRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/chatbot", chatbotRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // Active riders pool - stores rider socket connections with live data
 export const activeRidersPool = new Map();
