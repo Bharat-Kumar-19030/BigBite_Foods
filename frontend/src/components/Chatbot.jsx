@@ -178,58 +178,115 @@ const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Text to speech function
-  const speakText = (text) => {
+  // ─── Strip markdown / emoji noise before speaking ──────────────────
+  const cleanForSpeech = (raw) => {
+    return raw
+      .replace(/#{1,6}\s*/g, '')
+      .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')
+      .replace(/`[^`]+`/g, '')
+      .replace(/─+/g, '')
+      .replace(/^\s*[-•]\s+/gm, '')
+      .replace(/[\u{1F300}-\u{1FBFF}\u{2600}-\u{27BF}]/gu, '')
+      .replace(/₹/g, 'rupees ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  // ─── Pick best available neural / natural-sounding voice ───────────
+  const getBestVoice = () => {
+    const voices = synthRef.current.getVoices();
+    if (!voices.length) return null;
+    const preferred = [
+      v => v.name === 'Google US English',
+      v => v.name.includes('Google') && /en[-_]US/i.test(v.lang),
+      v => v.name.includes('Google') && /en/i.test(v.lang),
+      v => /Microsoft Aria/i.test(v.name),
+      v => /Microsoft Jenny/i.test(v.name),
+      v => /Microsoft Guy/i.test(v.name),
+      v => v.name.includes('Microsoft') && /en[-_]US/i.test(v.lang),
+      v => v.name.includes('Microsoft') && /en/i.test(v.lang),
+      v => v.name === 'Samantha',
+      v => v.name === 'Karen',
+      v => v.name === 'Daniel',
+      v => /en[-_]US/i.test(v.lang),
+      v => /en/i.test(v.lang),
+    ];
+    for (const test of preferred) {
+      const match = voices.find(test);
+      if (match) return match;
+    }
+    return voices[0];
+  };
+
+  // ─── Text to Speech ────────────────────────────────────────────────
+  const speakText = (rawText) => {
     if (!synthRef.current) return;
 
-    // Clear any existing timeout
-    if (speechTimeout) {
-      clearTimeout(speechTimeout);
-    }
+    if (speechTimeout) clearTimeout(speechTimeout);
 
-    // Cancel any ongoing speech
     synthRef.current.cancel();
     setIsSpeaking(false);
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
+    const text = cleanForSpeech(rawText);
+    if (!text) return;
 
-    // Set up event handlers
-    utterance.onstart = () => {
-      console.log('Speech started');
-      setIsSpeaking(true);
-    };
+    const doSpeak = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang   = 'en-US';
+      utterance.rate   = 0.86;
+      utterance.pitch  = 0.95;
+      utterance.volume = 1.0;
 
-    utterance.onend = () => {
-      console.log('Speech ended naturally');
-      setIsSpeaking(false);
-      if (speechTimeout) {
-        clearTimeout(speechTimeout);
-        setSpeechTimeout(null);
+      const voice = getBestVoice();
+      if (voice) {
+        utterance.voice = voice;
+        utterance.lang  = voice.lang || 'en-US';
+        console.log('🎙️ TTS voice:', voice.name);
       }
-    };
 
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event.error);
-      setIsSpeaking(false);
-      if (speechTimeout) {
-        clearTimeout(speechTimeout);
+      utterance.onstart = () => {
+        console.log('Speech started');
+        setIsSpeaking(true);
+      };
+
+      utterance.onend = () => {
+        console.log('Speech ended naturally');
+        setIsSpeaking(false);
+        if (speechTimeout) {
+          clearTimeout(speechTimeout);
+          setSpeechTimeout(null);
+        }
+      };
+
+      utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event.error);
+        setIsSpeaking(false);
+        if (speechTimeout) {
+          clearTimeout(speechTimeout);
+          setSpeechTimeout(null);
+        }
+      };
+
+      const fallbackTimeout = setTimeout(() => {
+        console.log('Speech fallback timeout triggered');
+        setIsSpeaking(false);
         setSpeechTimeout(null);
-      }
+      }, Math.max(text.length * 60, 4000));
+
+      setSpeechTimeout(fallbackTimeout);
+      synthRef.current.speak(utterance);
     };
 
-    // Fallback timeout in case onend doesn't fire (some browsers have issues)
-    const fallbackTimeout = setTimeout(() => {
-      console.log('Speech fallback timeout triggered - forcing isSpeaking to false');
-      setIsSpeaking(false);
-      setSpeechTimeout(null);
-    }, Math.max(text.length * 50, 3000)); // Estimate based on text length, minimum 3 seconds
-
-    setSpeechTimeout(fallbackTimeout);
-    synthRef.current.speak(utterance);
+    // Voices load async in most browsers — wait if not ready yet
+    const voices = synthRef.current.getVoices();
+    if (voices.length > 0) {
+      doSpeak();
+    } else {
+      synthRef.current.onvoiceschanged = () => {
+        synthRef.current.onvoiceschanged = null;
+        doSpeak();
+      };
+    }
   };
 
   // Stop speech

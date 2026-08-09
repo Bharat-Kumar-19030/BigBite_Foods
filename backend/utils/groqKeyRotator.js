@@ -125,7 +125,23 @@ function isRotatableError(err) {
      err?.message?.includes('tool_use_failed') ||
      err?.message?.includes('Failed to call a function'));
 
-  return is429 || isToolUseFailed;
+  // 404 model_not_found — this key may not have access to the model
+  // Rotate so we don't crash; if ALL keys have this issue the last error is thrown.
+  const isModelNotFound =
+    err?.status === 404 ||
+    err?.error?.error?.code === 'model_not_found' ||
+    err?.message?.includes('model_not_found') ||
+    err?.message?.includes('does not exist or you do not have access');
+
+  // 502/503 — Groq service temporarily unavailable
+  const isServiceUnavailable =
+    err?.status === 502 ||
+    err?.status === 503 ||
+    err?.message?.includes('502') ||
+    err?.message?.includes('503') ||
+    err?.message?.includes('Service Unavailable');
+
+  return is429 || isToolUseFailed || isModelNotFound || isServiceUnavailable;
 }
 
 /**
@@ -170,20 +186,26 @@ export async function callWithGroqRotation(fn, maxRetries) {
 
       if (isRotatableError(err)) {
         const keyShort = `...${key.slice(-6)}`;
-        const reason = err?.status === 429 ? '429 rate-limit' : 'tool_use_failed (400)';
+        let reason = 'unknown';
+        if (err?.status === 429) reason = '429 rate-limit';
+        else if (err?.status === 404 || err?.error?.error?.code === 'model_not_found') reason = '404 model-not-found';
+        else if (err?.status === 502 || err?.status === 503) reason = `${err.status} service-unavailable`;
+        else reason = `tool_use_failed (${err?.status || 400})`;
         console.warn(
           `⚠️  Groq ${reason} on key ${keyShort} (attempt ${attempt + 1}/${maxRetries + 1}). Rotating to next key...`
         );
         lastError = err;
 
-        // Small exponential backoff before retrying
-        if (attempt < maxRetries) {
-          await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+        // Small exponential backoff before retrying (skip backoff for 404 — it's not transient)
+        const backoffMs = (err?.status === 404) ? 0 : 400 * (attempt + 1);
+        if (attempt < maxRetries && backoffMs > 0) {
+          await new Promise((r) => setTimeout(r, backoffMs));
         }
         continue;
       }
 
       // Non-rotatable error — rethrow immediately
+      console.error(`❌ Non-rotatable Groq error on key ...${key.slice(-6)} (status ${err?.status}):`, err?.message?.slice(0, 200));
       throw err;
     }
   }

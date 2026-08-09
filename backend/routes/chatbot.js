@@ -8,7 +8,7 @@ import * as z from "zod";
 // ✅ CORRECT imports — fix for all previous crashes
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { tool } from "@langchain/core/tools";
-import { ChatGroq } from "@langchain/groq";
+import { ChatOpenAI } from "@langchain/openai";
 import { MemorySaver } from "@langchain/langgraph";
 import { HumanMessage } from "@langchain/core/messages";
 
@@ -336,7 +336,7 @@ const groqNumber = z.preprocess((val) => {
 
 // Coerce string booleans from LLM output ("true"/"false") → actual boolean
 // Uses a plain function (NOT z.preprocess) so JSON Schema serialization works.
-function toBool(val, fallback = undefined) {
+function toBool(val, fallback = undefined) { 
   if (val === undefined || val === null) return fallback;
   if (typeof val === 'boolean') return val;
   if (typeof val === 'string') return val.toLowerCase() === 'true';
@@ -2351,19 +2351,40 @@ Use when user asks: 'what is the rating of X', 'how good is this restaurant', 'i
 );
 
 // ─── Model Factory (uses key-rotator so each retry can use a fresh key) ────
-const GROQ_MODEL_NAME = "meta-llama/llama-4-scout-17b-16e-instruct";
+const NEMOTRON_MODEL_NAME = "nvidia/nemotron-3-ultra-550b-a55b";
+const NEMOTRON_BASE_URL   = "https://integrate.api.nvidia.com/v1";
 
 /**
- * Creates a fresh ChatGroq instance bound to the given API key.
- * Called on every attempt by callWithGroqRotation.
+ * Creates a fresh ChatOpenAI instance pointed at the NVIDIA Nemotron endpoint.
+ * NVIDIA's inference API is OpenAI-compatible so ChatOpenAI + custom baseURL works.
+ * Called on every attempt by callWithGroqRotation (key-rotation still applies).
  */
 function createModel(apiKey) {
-  return new ChatGroq({
-    model: GROQ_MODEL_NAME,
+  return new ChatOpenAI({
+    model:       NEMOTRON_MODEL_NAME,
     temperature: 0,
-    apiKey,
+    topP:        0.95,
+    maxTokens:   16384,
+    apiKey:      process.env.NVIDIA_API_KEY ||apiKey,
+    configuration: {
+      baseURL: NEMOTRON_BASE_URL,
+    },
   });
 }
+
+// ─── Fallback: Qwen via earthruntime (OpenAI-compatible) ─────────
+// const QWEN_MODEL_NAME = "qwen3.6-35b";
+// const QWEN_BASE_URL   = "https://api.earthruntime.com/v1";
+// function createModel(apiKey) {
+//   return new ChatOpenAI({
+//     model: QWEN_MODEL_NAME,
+//     temperature: 0,
+//     apiKey,
+//     configuration: {
+//       baseURL: QWEN_BASE_URL,
+//     },
+//   });
+// }
 
 // ─── Agent ────────────────────────────────────────────────────────
 const checkpointer = new MemorySaver();
